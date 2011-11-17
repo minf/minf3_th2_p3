@@ -87,5 +87,10 @@ T2(zid) =  zug_raus.zid -> SKIP
 
 T3 = (T2(0) |~| T2(1) |~| T2(2) |~| T2(3)); T3
 assert SYS \ {| zug_kommt, zug_rein, df_anfrage, df_freigabe, seg_senken, seg_heben, seg_oben, seg_unten |} [F= T3
+--assert T3 [F= SYS \ {| zug_kommt, zug_rein, df_anfrage, df_freigabe, seg_senken, seg_heben, seg_oben, seg_unten |}
 
+
+--T4(zid) = zug_kommt.zid -> WAITFG(zid)
+
+--WAITFG(zid) = zug_kommt df_freigabe?fzid -> (fzid==zid & SKIP) [] (fzid!=zid & WAITFG(zid))
 
