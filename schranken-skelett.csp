@@ -83,31 +83,9 @@ assert T1 [T= SYS \ {| zug_kommt, df_anfrage, df_freigabe,
 
 -- Kein Zug ist dauerhaft blockiert
 
-T2(zid) =  zug_raus.zid -> SKIP --T2(zid)
-ANY = (
-        (T2(0); ANY2; SKIP) |~| 
-        (T2(1); ANY) |~| 
-        (T2(2); ANY) |~| 
-        (T2(3); ANY) 
-      )
-ANY2 = (
-        (T2(0); SKIP) |~| 
-        (T2(1); ANY2) |~| 
-        (T2(2); ANY2) |~| 
-        (T2(3); ANY2)
-       )
+T2(zid) =  zug_raus.zid -> SKIP 
 
---assert T2_0 [T= SYS \ {|  zug_kommt, df_anfrage, df_freigabe,
---                       seg_senken, seg_heben, seg_oben |}
-
-
---T2ALL0 = SYS [|{| zug_raus |}|] ANY 
---T2ALL1 = SYS [|{| zug_raus |}|] T2_1
-
---assert ANY [T= SYS \ {| zug_kommt, zug_rein, df_anfrage, df_freigabe,
---                       seg_senken, seg_heben, seg_oben, seg_unten |}
-
-assert SYS \ {| zug_kommt, zug_rein, df_anfrage, df_freigabe, seg_senken, seg_heben, seg_oben, seg_unten |} [T= ANY
-
+T3 = (T2(0) |~| T2(1) |~| T2(2) |~| T2(3)); T3
+assert SYS \ {| zug_kommt, zug_rein, df_anfrage, df_freigabe, seg_senken, seg_heben, seg_oben, seg_unten |} [F= T3
 
 
