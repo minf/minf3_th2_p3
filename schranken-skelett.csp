@@ -85,12 +85,45 @@ assert T1 [T= SYS \ {| zug_kommt, df_anfrage, df_freigabe,
 
 T2(zid) =  zug_raus.zid -> SKIP 
 
-T3 = (T2(0) |~| T2(1) |~| T2(2) |~| T2(3)); T3
-assert SYS \ {| zug_kommt, zug_rein, df_anfrage, df_freigabe, seg_senken, seg_heben, seg_oben, seg_unten |} [F= T3
+--T3 = (T2(0) |~| T2(1) |~| T2(2) |~| T2(3)); T3
+--assert SYS \ {| zug_kommt, zug_rein, df_anfrage, df_freigabe, seg_senken, seg_heben, seg_oben, seg_unten |} [F= T3
 --assert T3 [F= SYS \ {| zug_kommt, zug_rein, df_anfrage, df_freigabe, seg_senken, seg_heben, seg_oben, seg_unten |}
 
+TN3(a,b,c) = T2(a) ; TN(b,c)
+TN(a,b) = (T2(a); T2(b); SKIP) |~| (T2(b); T2(a); SKIP)
+ 
+T4 = T2(0); (
+      ( TN3(1,2,3); T4 ) |~|
+      ( TN3(2,3,1); T4 ) |~|
+      ( TN3(3,1,2); T4 )
+    )
+ 
+assert SYS \ {| zug_kommt, zug_rein, df_anfrage, df_freigabe, seg_senken, seg_heben, seg_oben, seg_unten |} [T= T4
 
---T4(zid) = zug_kommt.zid -> WAITFG(zid)
 
---WAITFG(zid) = zug_kommt df_freigabe?fzid -> (fzid==zid & SKIP) [] (fzid!=zid & WAITFG(zid))
+T5 = T2(1); (
+      ( TN3(0,2,3); T5 ) |~|
+      ( TN3(2,3,0); T5 ) |~|
+      ( TN3(3,0,2); T5 )
+    )
+ 
+assert SYS \ {| zug_kommt, zug_rein, df_anfrage, df_freigabe, seg_senken, seg_heben, seg_oben, seg_unten |} [T= T5
+
+
+T6 = T2(2); (
+      ( TN3(1,0,3); T6 ) |~|
+      ( TN3(0,3,1); T6 ) |~|
+      ( TN3(3,1,0); T6 )
+    )
+ 
+assert SYS \ {| zug_kommt, zug_rein, df_anfrage, df_freigabe, seg_senken, seg_heben, seg_oben, seg_unten |} [T= T6
+
+
+T7 = T2(3); (
+      ( TN3(1,2,0); T7 ) |~|
+      ( TN3(2,0,1); T7 ) |~|
+      ( TN3(0,1,2); T7 )
+    )
+ 
+assert SYS \ {| zug_kommt, zug_rein, df_anfrage, df_freigabe, seg_senken, seg_heben, seg_oben, seg_unten |} [T= T7
 
