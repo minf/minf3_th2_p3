@@ -1,40 +1,113 @@
-;; Spezifikation Schrankensystem mit Prüfungen
-;; Übung TH2, WS 11/12
+-- Spezifikation Schrankensystem mit Prüfungen
+-- Übung TH2, WS 11/12
 
-;;----------
-;;Datentypen 
-;;---------- 
+------------
+--Datentypen 
+------------ 
 
  nametype ZId = {0,1,2,3}  
- nametype SegId = {l1,l2,r1,r2} ;; links 1 und 2, rechts 1 und 2 
- nametype SigStates = {r, g} ;; Signalzustand rot, grün 
- nametype SegState = {unten, oben, senken, heben };; Segmentzustand 
- channel zug_kommt, zug_rein, zug_raus: ZID 
- channel df_anfrage, df_freigabe: ZID  ;; Durchfahrt Anfrage und Freigabe 
+ datatype SegId = l1|l2|r1|r2 -- links 1 und 2, rechts 1 und 2 
+ datatype SigStates = r|g -- Signalzustand rot, grün 
+ datatype SegState = unten|oben|senken|heben -- Segmentzustand 
+ channel zug_kommt, zug_rein, zug_raus: ZId 
+ channel df_anfrage, df_freigabe: ZId  -- Durchfahrt Anfrage und Freigabe 
  channel seg_senken, seg_heben, seg_unten, seg_oben: SegId
 
-;;----------
-;;Basisprozesse
-;;---------- 
+------------
+--Basisprozesse
+------------ 
 
-SEGMENT ( state ) = 
+SEGMENT ( sid, status ) = (status==oben) & seg_senken?sid -> SEGMENT( sid, senken ) []
+                          (status==senken) & seg_unten.sid -> SEGMENT( sid, unten ) []
+                          (status==unten) & seg_heben.sid -> SEGMENT( sid, heben ) []
+                          (status==heben) & (
+                                              (seg_oben.sid -> SEGMENT( sid, oben )) []
+                                              (seg_senken?sid -> SEGMENT( sid, senken))
+                                            )
 
-STEUER ( ) = zug_kommt?zid -> senken!r1 -> senken!r2 -> seg_unten?r1 -> seg_unten?r2 -> senken!l1 -> senken!l2 -> seg_unten?l1 -> seg_unten?l2
+STEUER ( ) = df_anfrage?zid -> STEUERS(zid)
 
-SIGNAL ( state ) = 
+STEUERS (zid) = SENKEN() ; df_freigabe.zid 
+  -> zug_rein.zid -> zug_raus.zid -> HEBEN() ; STEUER( )
 
-ZUG ( zid ) = zug_kommt.zid -> df_anfrage.zid -> df_freigabe.zid -> zug_rein.zid -> zug_raus.zid -> ZUG ( zid )
+SENKEN ( ) = seg_senken!r1 -> seg_senken!r2 
+  -> (
+      (seg_unten.r1 -> seg_unten.r2 -> SENKENL()) []
+      (seg_unten.r2 -> seg_unten.r1 -> SENKENL())
+     ) 
 
-;;----------
-;;Gesamtsystem
-;;---------- 
+SENKENL ( ) = seg_senken!l1 -> seg_senken!l2 
+  -> (
+      (seg_unten.l1 -> seg_unten.l2 -> SKIP) [] 
+      (seg_unten.l2 -> seg_unten.l1 -> SKIP)
+     )
 
 
-;;----------
-;;Prüfungen
-;;---------- 
+HEBEN ( ) = seg_heben!r1 -> seg_heben!r2 -> seg_heben!l1 -> seg_heben!l2 -> SKIP
 
-;; Zug fährt nur wenn alle Schranken unten sind
+SIGNAL ( state ) =  (df_freigabe?zid -> SIGNAL( g )) []
+                    (zug_raus?zid -> SIGNAL( r ))
+
+ZUG ( zid ) = zug_kommt.zid -> df_anfrage!zid -> df_freigabe?zid -> zug_rein.zid -> zug_raus.zid -> ZUG ( zid )
+
+------------
+--Gesamtsystem
+------------ 
+
+SYS = (
+        SIGNAL(r) 
+          [|{| df_freigabe, zug_raus |}|]
+        (
+          (||| zid:ZId @ ZUG(zid))
+            [|{| df_anfrage, df_freigabe, zug_rein, zug_raus |}|]
+          ( STEUER() )
+        )
+      )
+        [|{| seg_senken, seg_heben, seg_unten |}|]
+      (||| sid:SegId @ SEGMENT(sid, oben)
+    )
+
+------------
+--Prüfungen
+------------ 
+
+-- Zug fährt nur wenn alle Schranken unten sind
+
+T1 =  UNTENR; UNTENL; zug_rein?zid -> zug_raus.zid -> T1
+UNTENR = (seg_unten.r1 -> seg_unten.r2 -> SKIP) [] (seg_unten.r2 -> seg_unten.r1 -> SKIP)
+UNTENL = (seg_unten.l1 -> seg_unten.l2 -> SKIP) [] (seg_unten.l2 -> seg_unten.l1 -> SKIP)
+
+assert T1 [T= SYS \ {| zug_kommt, df_anfrage, df_freigabe,
+                       seg_senken, seg_heben, seg_oben |}
 
 
-;; Kein Zug ist dauerhaft blockiert
+-- Kein Zug ist dauerhaft blockiert
+
+T2(zid) =  zug_raus.zid -> SKIP --T2(zid)
+ANY = (
+        (T2(0); ANY2; SKIP) |~| 
+        (T2(1); ANY) |~| 
+        (T2(2); ANY) |~| 
+        (T2(3); ANY) 
+      )
+ANY2 = (
+        (T2(0); SKIP) |~| 
+        (T2(1); ANY2) |~| 
+        (T2(2); ANY2) |~| 
+        (T2(3); ANY2)
+       )
+
+--assert T2_0 [T= SYS \ {|  zug_kommt, df_anfrage, df_freigabe,
+--                       seg_senken, seg_heben, seg_oben |}
+
+
+--T2ALL0 = SYS [|{| zug_raus |}|] ANY 
+--T2ALL1 = SYS [|{| zug_raus |}|] T2_1
+
+--assert ANY [T= SYS \ {| zug_kommt, zug_rein, df_anfrage, df_freigabe,
+--                       seg_senken, seg_heben, seg_oben, seg_unten |}
+
+assert SYS \ {| zug_kommt, zug_rein, df_anfrage, df_freigabe, seg_senken, seg_heben, seg_oben, seg_unten |} [T= ANY
+
+
+
