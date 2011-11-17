@@ -1,0 +1,17 @@
+channel a,b
+
+N0 = SKIP |~| (a -> N0 [] b -> N1 [] b -> N2)
+N1 = (a -> N3 [] b -> N2 ) |~| SKIP
+N2 = (a -> N0 [] b -> N3) |~| SKIP
+N3 = (a -> N3) [] b -> N3
+
+X0 = SKIP |~| (a -> X0 [] b -> X1)
+X1 = SKIP |~| (a -> X0 [] b -> X2)
+X2 = a -> STOP [] b -> X3
+X3 = SKIP |~| (a -> X0 [] b -> X2)
+
+;; Zusicherungen beweisen oder widerlegen
+assert N0 [T= X0
+assert N0 [F= X0
+assert X0 [T= N0
+assert X0 [F= N0
