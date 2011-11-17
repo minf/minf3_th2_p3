@@ -10,7 +10,7 @@ X1 = SKIP |~| (a -> X0 [] b -> X2)
 X2 = a -> STOP [] b -> X3
 X3 = SKIP |~| (a -> X0 [] b -> X2)
 
-;; Zusicherungen beweisen oder widerlegen
+-- Zusicherungen beweisen oder widerlegen
 assert N0 [T= X0
 assert N0 [F= X0
 assert X0 [T= N0
