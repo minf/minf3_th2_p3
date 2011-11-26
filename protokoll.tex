@@ -147,12 +147,12 @@ Berechnen Sie die Trace-Semantik der Prozesse auf der Basis der Trace-Definition
 \end{equation*}
 
 \begin{align*}
-  traces(S) &= \{ tr \in TRACES | tr \filter \{ a,b, \tick \} \in traces(P) \wedge \\
-            &\hspace{0.7cm} tr \filter \{ x, y, \tick \} \in traces(Q) \wedge \sigma(tr) \subseteq \{ a, b, x, y \}^{\tick} \} & \text{Alph. Parallel, 6.18} \\
-            &= \{ tr \in TRACES | tr \in \{ \langle \rangle, \langle a \rangle, \langle a, b \rangle, \langle a, b, \tick \rangle, \langle b \rangle \} \wedge \\
-            &\hspace{0.7cm} tr \in \{ \langle \rangle, \langle x \rangle, \langle x, \tick \rangle, \langle y \rangle, \langle x, y \rangle \} \wedge \\
-            &\hspace{0.7cm} \sigma(tr) \subseteq \{ a, b, x, y \}^{\tick} \} \\
-            &= \{ \langle \rangle \}
+  traces(S) &= \{ tr \in TRACES | tr \filter \{ a, b, \tick \} \in traces(P) \wedge \\
+            &\hspace{0.7cm} tr \filter \{ x, y, \tick \} \in traces(Q) \wedge \sigma(tr) \subseteq \{ a, b, x, y, \tick \} \} & \text{Alph. Parallel, 6.18} \\
+            &= \{ tr \in TRACES | tr \filter \{ a, b, \tick \} \in  \{ \langle \rangle, \langle a \rangle, \langle a, b \rangle, \langle a, b, \tick \rangle, \langle b \rangle, \langle b, d \rangle \} \wedge \\
+            &\hspace{0.7cm} tr \filter \{ x, y, \tick \} \in \{ \langle \rangle, \langle x \rangle, \langle x, \tick \rangle, \langle y \rangle, \langle x, y \rangle \} \wedge \\
+            &\hspace{0.7cm} \sigma(tr) \subseteq \{ a, b, x, y, \tick \} \} \\
+            &= \{ \langle \rangle, \langle a \rangle, \langle a, b \rangle, \langle a, b, \tick \rangle, \langle b \rangle, \langle b, d \rangle, \langle x \rangle, \langle x, \tick \rangle, \langle y \rangle, \langle x, y \rangle \} 
 \end{align*}
 
 \end{document}
