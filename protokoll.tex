@@ -1,0 +1,159 @@
+
+\documentclass{scrreprt}
+
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage[utf8]{inputenc}
+\usepackage{zed-csp}
+
+\begin{document}
+
+\author{Andreas Krohn, Benjamin Jochheim, Theodor Nolte, Benjamin Vetter}
+\title{TH2 - Übung 2}
+
+\maketitle
+
+\chapter{CSP Trace Semantik}
+
+\section{Traces für konkrete Prozesse berechnen}
+
+Gegeben seien die folgenden Prozesse:
+
+\begin{equation*}
+  P = (a \then b \then Skip) \extchoice (b \then d \then Stop)
+\end{equation*}
+
+\begin{equation*}
+  Q = (x \then Skip) \interrupt (y \then Stop)
+\end{equation*}
+
+\begin{equation*}
+  R = (P; Q) \setminus \{ x, y \}
+\end{equation*}
+
+\begin{equation*}
+  S = P \parallel[\{a, b\}][\{x, y\}] Q
+\end{equation*}
+
+Berechnen Sie die Trace-Semantik der Prozesse auf der Basis der Trace-Definitionen im CSP-Guide (Kap. 6). Geben Sie die für die Berechnung verwendeten Regeln an. Referenzversion ist Version 43 des CSP-Guide.
+
+\newpage
+
+\begin{equation*}
+  P = (a \then b \then Skip) \extchoice (b \then d \then Stop)
+\end{equation*}
+
+\begin{align*}
+  traces(P) &= traces((a \then b \then Skip) \extchoice (b \then d \then Stop) \\
+            &= traces(a \then b \then Skip) \cup traces(b \then d \then Stop) & \text{Choice, 6.14} \\
+\end{align*}
+
+\begin{align*}
+  traces(a \then b \then Skip) &= \{ \langle \rangle \} \cup \{ \langle a \rangle \cat tr | tr \in traces(b \then Skip) \} & \text{Prefixing, 6.10}
+\end{align*}
+
+\begin{align*}
+  traces(b \then Skip) &= \{ \langle \rangle \} \cup \{ \langle b \rangle \cat tr | tr \in traces(Skip) \} & \text{Prefixing, 6.10} \\
+                       &= \{ \langle \rangle \} \cup \{ \langle b \rangle \cat tr | tr \in \{ \langle \rangle, \langle \tick \rangle \} \} & \text{Skip, 6.4} \\
+                       &= \{ \langle \rangle, \langle b \rangle, \langle b, \tick \rangle \}
+\end{align*}
+
+\begin{align*}
+  traces(a \then b \then Skip) &= \{ \langle \rangle \} \cup \{ \langle a \rangle \cat tr | tr \in \{ \langle \rangle, \langle b \rangle, \langle b, \tick \rangle \} \\
+                               &= \{ \langle \rangle, \langle a \rangle, \langle a, b \rangle, \langle a, b, \tick \rangle \}
+\end{align*}
+
+\begin{align*}
+  traces(b \then d \then Stop) &= \{ \langle \rangle \} \cup \{ \langle b \rangle \cat tr | tr \in traces(d \then Stop) \} & \text{Prefixing, 6.10}
+\end{align*}
+
+\begin{align*}
+  traces(d \then Stop) &= \{ \langle \rangle \} \cup \{ \langle d \rangle \cat tr | tr \in traces(Stop) \} & \text{Prefixing, 6.10} \\
+                       &= \{ \langle \rangle \} \cup \{ \langle d \rangle \cat tr | tr \in \{ \langle \rangle \} \} & \text{Stop, 6.3} \\
+                       &= \{ \langle \rangle, \langle d \rangle \}
+\end{align*}
+
+\begin{align*}
+  traces(b \then d \then Stop) &= \{ \langle \rangle \} \cup \{ \langle b \rangle \cat tr | tr \in \{ \langle \rangle, \langle d \rangle \} \} \\
+                               &= \{ \langle \rangle, \langle b \rangle, \langle b, d \rangle \}
+\end{align*}
+
+\begin{align*}
+  traces(P) &= \{ \langle \rangle, \langle a \rangle, \langle a, b \rangle, \langle a, b, \tick \rangle \} \cup \{ \langle \rangle, \langle b \rangle, \langle b, d \rangle \} \\
+            &= \{ \langle \rangle, \langle a \rangle, \langle a, b \rangle, \langle a, b, \tick \rangle, \langle b \rangle, \langle b, d \rangle \}
+\end{align*}
+
+\newpage
+
+\begin{equation*}
+  Q = (x \then Skip) \interrupt (y \then Stop)
+\end{equation*}
+
+\begin{align*}
+  traces(Q) &= traces((x \then Skip) \interrupt (y \then Stop)) \\
+            &= traces(x \then Skip) \cup \\
+            &\hspace{0.5cm} \{ tr_1 \cat tr_2 | tr_1 \in traces(x \then Skip) \wedge \tick \nin \sigma(tr_1) \wedge tr_2 \in traces(y \then Stop) \} & \text{Interrupt, 6.53}
+\end{align*}
+
+\begin{align*}
+  traces(x \then Skip) &= \{ \langle \rangle \} \cup \{ \langle x \rangle \cat tr | tr \in traces(Skip) \} & \text{Prefixing, 6.10} \\
+                       &= \{ \langle \rangle \} \cup \{ \langle x \rangle \cat tr | tr \in \{ \langle \rangle, \langle \tick \rangle \} \} & \text{Skip, 6.4} \\
+                       &= \{ \langle \rangle, \langle x \rangle, \langle x, \tick \rangle \}
+\end{align*}
+
+\begin{align*}
+  traces(y \then Stop) &= \{ \langle \rangle \} \cup \{ \langle y \rangle \cat tr | tr \in traces(Stop) \} & \text{Prefixing, 6.10} \\
+                       &= \{ \langle \rangle \} \cup \{ \langle y \rangle \cat tr | tr \in \{ \langle \rangle \} \} & \text{Stop, 6.3} \\
+                       &= \{ \langle \rangle, \langle y \rangle \}
+\end{align*}
+
+\begin{align*}
+  traces(Q) &= \{ \langle \rangle, \langle x \rangle, \langle x, \tick \rangle \} \cup \\
+            &\hspace{0.5cm} \{ tr_1 \cat tr_2 | tr_1 \in \{ \langle \rangle, \langle x \rangle, \langle x, \tick \rangle \} \wedge \tick \nin \sigma(tr_1) \wedge tr_2 \in \{ \langle \rangle, \langle y \rangle \} \} \\
+            &= \{ \langle \rangle, \langle x \rangle, \langle x, \tick \rangle \} \cup \{ \langle \rangle, \langle y \rangle, \langle x \rangle, \langle x, y \rangle \rangle \} \\
+            &= \{ \langle \rangle, \langle x \rangle, \langle x, \tick \rangle, \langle y \rangle, \langle x, y \rangle \}
+\end{align*}
+
+\newpage
+
+\begin{equation*}
+  R = (P; Q) \setminus \{ x, y \}
+\end{equation*}
+
+\begin{align*}
+  traces(R) &= traces((P; Q) \setminus \{ x, y \}) \\
+            &= \{ tr \setminus \{ x, y \} | tr \in traces(P; Q) & \text{Hiding, 6.48}
+\end{align*}
+
+\begin{align*}
+  traces(P; Q) &= \{ tr | tr \in \{ \langle \rangle, \langle a \rangle, \langle a, b \rangle, \langle a, b, \tick \rangle, \langle b \rangle, \langle b, d \rangle \} \wedge \tick \nin \sigma(tr) \} \\
+               &\hspace{0.5cm} \cup \{ tr_1 \cat tr_2 | tr_1 \cat \langle \tick \rangle \in \{ \langle \rangle, \langle a \rangle, \langle a, b \rangle, \langle a, b, \tick \rangle, \langle b \rangle, \langle b, d \rangle \} \wedge \\
+               &\hspace{1.1cm} tr_2 \in \{ \langle \rangle, \langle x \rangle, \langle x, \tick \rangle, \langle y \rangle, \langle x, y \rangle \} \} & \text{Seq. Comp., 6.51} \\
+               &= \{ \langle \rangle, \langle a \rangle, \langle a, b \rangle, \langle b \rangle, \langle b, d \rangle \} \cup \\
+               &\hspace{0.5cm} \{ tr_1 \cat tr_2 | tr_1 \in \{ \langle a, b \rangle \} \wedge tr_2 \in \{ \langle \rangle, \langle x \rangle, \langle x, \tick \rangle, \langle y \rangle, \langle x, y \rangle \} \\
+               &= \{ \langle \rangle, \langle a \rangle, \langle a, b \rangle, \langle b \rangle, \langle b, d \rangle \} \cup \\
+               &\hspace{0.5cm} \{ \langle a, b \rangle, \langle a, b, x \rangle, \langle a, b, x, \tick \rangle, \langle a, b, y \rangle, \langle a, b, x, y \rangle \} \\
+               &= \{ \langle \rangle, \langle a \rangle, \langle a, b \rangle, \langle b \rangle, \langle b, d \rangle, \langle a, b, x \rangle, \langle a, b, x, \tick \rangle, \langle a, b, y \rangle, \langle a, b, x, y \rangle \}
+\end{align*}
+
+\begin{align*}
+  traces(R) &= \{ \langle \rangle, \langle a \rangle, \langle a, b \rangle, \langle b \rangle, \langle b, d \rangle, \langle a, b, x \rangle, \langle a, b, x, \tick \rangle, \langle a, b, y \rangle, \langle a, b, x, y \rangle \} \setminus \{ x, y \} \\
+            &= \{ \langle \rangle, \langle a \rangle, \langle a, b \rangle, \langle b \rangle, \langle b, d \rangle, \langle a, b, \tick \rangle \} 
+\end{align*}
+
+\newpage
+
+\begin{equation*}
+  S = P \parallel[\{a, b\}][\{x, y\}] Q
+\end{equation*}
+
+\begin{align*}
+  traces(S) &= \{ tr \in TRACES | tr \filter \{ a,b, \tick \} \in traces(P) \wedge \\
+            &\hspace{0.7cm} tr \filter \{ x, y, \tick \} \in traces(Q) \wedge \sigma(tr) \subseteq \{ a, b, x, y \}^{\tick} \} & \text{Alph. Parallel, 6.18} \\
+            &= \{ tr \in TRACES | tr \in \{ \langle \rangle, \langle a \rangle, \langle a, b \rangle, \langle a, b, \tick \rangle, \langle b \rangle \} \wedge \\
+            &\hspace{0.7cm} tr \in \{ \langle \rangle, \langle x \rangle, \langle x, \tick \rangle, \langle y \rangle, \langle x, y \rangle \} \wedge \\
+            &\hspace{0.7cm} \sigma(tr) \subseteq \{ a, b, x, y \}^{\tick} \} \\
+            &= \{ \langle \rangle \}
+\end{align*}
+
+\end{document}
+
