@@ -148,11 +148,37 @@ Berechnen Sie die Trace-Semantik der Prozesse auf der Basis der Trace-Definition
 
 \begin{align*}
   traces(S) &= \{ tr \in TRACES | tr \filter \{ a, b, \tick \} \in traces(P) \wedge \\
-            &\hspace{0.7cm} tr \filter \{ x, y, \tick \} \in traces(Q) \wedge \sigma(tr) \subseteq \{ a, b, x, y, \tick \} \} & \text{Alph. Parallel, 6.18} \\
+            &\hspace{0.7cm} tr \filter \{ x, y, \tick \} \in traces(Q)
+            \wedge \sigma(tr) \subseteq \{ a, b, x, y, \tick \} \} &
+            \text{Alph. Parallel, 6.18-20} \\
             &= \{ tr \in TRACES | tr \filter \{ a, b, \tick \} \in  \{ \langle \rangle, \langle a \rangle, \langle a, b \rangle, \langle a, b, \tick \rangle, \langle b \rangle, \langle b, d \rangle \} \wedge \\
             &\hspace{0.7cm} tr \filter \{ x, y, \tick \} \in \{ \langle \rangle, \langle x \rangle, \langle x, \tick \rangle, \langle y \rangle, \langle x, y \rangle \} \wedge \\
             &\hspace{0.7cm} \sigma(tr) \subseteq \{ a, b, x, y, \tick \} \} \\
-            &= \{ \langle \rangle, \langle a \rangle, \langle a, b \rangle, \langle a, b, \tick \rangle, \langle b \rangle, \langle b, d \rangle, \langle x \rangle, \langle x, \tick \rangle, \langle y \rangle, \langle x, y \rangle \} 
+            &= \{ \langle \rangle, \langle a \rangle, \langle a, b \rangle, \langle a, b, \tick \rangle, \langle b \rangle, \langle b, d \rangle, \langle x \rangle, \langle x, \tick \rangle, \langle y \rangle, \langle x, y \rangle \} \\
+&= \{ \langle \rangle,\\
+% P only, Q only
+&\hspace{0.7cm}\langle a \rangle, \langle b \rangle, \langle a, b \rangle, \langle b, d \rangle,\\
+&\hspace{0.7cm}\langle x \rangle, \langle y \rangle, \langle x, y \rangle,\\
+% <a> X <x>,  <b> X <x>,  <ab> X <x>  and <bd> X <x>
+&\hspace{0.7cm}\langle a, x \rangle, \langle x, a \rangle,
+               \langle b, x, \rangle, \langle x, b \rangle,\\
+&\hspace{0.7cm}\langle a, b, x \rangle, \langle a, x, b \rangle, \langle x, a, b \rangle,\\
+&\hspace{0.7cm}\langle b, d, x \rangle,  \langle b, x, d \rangle,  \langle x, b, d \rangle,\\
+% <a> X <y>,  <b> X <y>,  <ab> X <y>  and <bd> X <y>
+&\hspace{0.7cm}\langle a, y \rangle, \langle y, a \rangle,
+               \langle b, y \rangle, \langle y, b \rangle,\\
+&\hspace{0.7cm}\langle a, b, y \rangle, \langle a, y, b \rangle, \langle y, a, b \rangle,\\
+&\hspace{0.7cm}\langle b, d, y \rangle, \langle b, y, d \rangle, \langle y, b, d \rangle,\\
+% <a> X <xy>,  <b> X <xy>,  <ab> X <xy>  and <bd> X <xy>
+&\hspace{0.7cm}\langle a, x, y \rangle, \langle x, a, y \rangle, \langle x, y, a \rangle,\\
+&\hspace{0.7cm}\langle b, x, y \rangle, \langle x, b, y \rangle, \langle x, y, b \rangle,\\
+&\hspace{0.7cm}\langle a, b, x, y \rangle, \langle a, x, b, y \rangle, \langle a, x, y, b \rangle,
+               \langle x, a, y, b \rangle, \langle x, y, a, b \rangle, \langle x, a, b, y \rangle,\\
+&\hspace{0.7cm}\langle b, d, x, y \rangle, \langle b, x, d, y \rangle, \langle x, b, d, y \rangle,
+               \langle x, b, y, d \rangle, \langle x, y, b, d \rangle, \langle b, x, y, d \rangle,\\
+% <aby´> X <x`>
+&\hspace{0.7cm}\langle a, b, x, \tick \rangle, \langle a, x, b, \tick \rangle, \langle x, a, b, \tick \rangle
+\}
 \end{align*}
 
 \end{document}
